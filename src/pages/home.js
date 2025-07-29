@@ -1,58 +1,41 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { useMovieContext } from '../context/MovieContext';
-import MovieCard from '../components/MovieCard';
+import { fetchMovies } from '../services/api';
 import SearchBar from '../components/SearchBar';
 import GenreFilter from '../components/GenreFilter';
-import MovieMatch from '../components/MovieMatch';
-import ThemeToggle from '../components/ThemeToggle';
+import MovieCard from '../components/MovieCard';
 
-const Home = () => {
-  const { movies, isLoading, searchQuery } = useMovieContext();
+export default function Home() {
+  const { movies, setMovies } = useMovieContext();
 
-  const renderSection = (title, movies) => (
-    movies?.length > 0 && (
-      <section className="movie-section">
-        <h2>{title}</h2>
-        <div className="movie-grid">
-          {movies.map(movie => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
-      </section>
-    )
-  );
+  useEffect(() => {
+    const loadMovies = async () => {
+      try {
+        const data = await fetchMovies();
+        setMovies(data);
+      } catch (error) {
+        console.error('Failed to load movies:', error);
+        setMovies([]);
+      }
+    };
+    
+    loadMovies();
+  }, [setMovies]);
 
   return (
-    <div className="home">
-      <div className="hero">
-        <h1>Discover Your Next Favorite Movie</h1>
-        <SearchBar />
+    <div className="home-page">
+      <SearchBar />
+      <GenreFilter />
+      
+      <div className="movie-grid">
+        {movies.length > 0 ? (
+          movies.map(movie => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))
+        ) : (
+          <div className="loading-message">Loading movies...</div>
+        )}
       </div>
-      
-      <div className="tools">
-        <GenreFilter />
-        <ThemeToggle />
-      </div>
-      
-      <MovieMatch />
-      
-      {isLoading ? (
-        <div className="loading">Loading movies...</div>
-      ) : (
-        <>
-          {searchQuery ? (
-            renderSection(`Search Results for "${searchQuery}"`, movies.searchResults)
-          ) : (
-            <>
-              {renderSection('Trending Now', movies.trending)}
-              {renderSection('Popular Movies', movies.popular)}
-              {renderSection('Top Rated', movies.top_rated)}
-            </>
-          )}
-        </>
-      )}
     </div>
   );
-};
-
-export default Home;
+}

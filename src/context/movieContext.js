@@ -1,70 +1,37 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { fetchMovies, searchMovies, getGenres } from '../services/api';
+import { createContext, useContext, useState } from 'react';
 
 const MovieContext = createContext();
 
-export const useMovieContext = () => useContext(MovieContext);
+export function MovieProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  const [movies, setMovies] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('All');
 
-export const MovieProvider = ({ children }) => {
-  const [movies, setMovies] = useState({ trending: [], popular: [], top_rated: [] });
-  const [genres, setGenres] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [watchlist, setWatchlist] = useState([]);
-  const [theme, setTheme] = useState('dark');
-
-  useEffect(() => {
-    const loadData = async () => {
-      const [genresData, trendingData, popularData, topRatedData] = await Promise.all([
-        getGenres(),
-        fetchMovies('trending'),
-        fetchMovies('popular'),
-        fetchMovies('top_rated')
-      ]);
-      
-      setGenres(genresData.genres);
-      setMovies({
-        trending: trendingData.results,
-        popular: popularData.results,
-        top_rated: topRatedData.results
-      });
-      setIsLoading(false);
-    };
-    
-    loadData();
-  }, []);
-
-  const handleSearch = async (query) => {
-    if (!query.trim()) return;
-    setIsLoading(true);
-    const results = await searchMovies(query);
-    setSearchQuery(query);
-    setMovies(prev => ({ ...prev, searchResults: results.results }));
-    setIsLoading(false);
-  };
-
-  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-
-  const addToWatchlist = (movie) => {
-    setWatchlist(prev => [...prev, movie]);
-  };
-
+  // Add other movie-related states here
+  
   return (
-    <MovieContext.Provider value={{
-      movies,
-      genres,
-      selectedGenre,
-      setSelectedGenre,
-      searchQuery,
-      handleSearch,
-      isLoading,
-      watchlist,
-      addToWatchlist,
-      theme,
-      toggleTheme
-    }}>
+    <MovieContext.Provider 
+      value={{
+        theme,
+        setTheme,
+        movies,
+        setMovies,
+        selectedGenre,
+        setSelectedGenre
+      }}
+    >
       {children}
     </MovieContext.Provider>
   );
-};
+}
+
+export function useMovieContext() {
+  const context = useContext(MovieContext);
+  
+  if (context === undefined) {
+    throw new Error('useMovieContext must be used within MovieProvider');
+  }
+  
+  return context;
+}
+

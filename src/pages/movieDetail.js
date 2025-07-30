@@ -1,118 +1,121 @@
-// src/pages/MovieDetail.js
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useMovieContext } from '../context/MovieContext';
 
-const MovieDetail = () => {
+export default function MovieDetail() {
   const { id } = useParams();
-  const { getMovieDetails, addToWatchlist, watchlist, removeFromWatchlist } = useMovieContext();
-  const [movie, setMovie] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const isInWatchlist = watchlist.some(m => m.id === Number(id));
+  const { selectedMovie, getMovieDetails, isLoading } = useMovieContext();
 
   useEffect(() => {
-    const fetchMovieDetails = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getMovieDetails(id);
-        setMovie(data);
-      } catch (err) {
-        setError('Failed to load movie details');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchMovieDetails();
+    if (id) {
+      getMovieDetails(id);
+    }
   }, [id, getMovieDetails]);
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="loading">
         <div className="spinner"></div>
         <p>Loading movie details...</p>
       </div>
     );
   }
 
-  if (error) {
-    return <div className="error-message">{error}</div>;
-  }
-
-  if (!movie) {
-    return <div className="error-message">Movie not found</div>;
+  if (!selectedMovie) {
+    return (
+      <div className="movie-detail error">
+        <h2>Movie Not Found</h2>
+        <p>Sorry, we couldn't find the movie you're looking for.</p>
+        <Link to="/" className="btn">Back to Home</Link>
+      </div>
+    );
   }
 
   return (
     <div className="movie-detail">
-      <div className="detail-header">
-        <h1>{movie.title}</h1>
-        <div className="detail-meta">
-          <span>⭐ {movie.vote_average}</span>
-          <span>{movie.release_date}</span>
-          <span>{movie.runtime} min</span>
-        </div>
-      </div>
+      {/* Backdrop */}
+      <div 
+        className="backdrop" 
+        style={{ 
+          backgroundImage: `url(https://image.tmdb.org/t/p/original${selectedMovie.backdrop_path})` 
+        }}
+      />
       
-      <div className="detail-content">
-        {movie.poster_path && (
-          <img 
-            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
-            alt={movie.title}
-            className="detail-poster"
-          />
-        )}
-        
-        <div className="detail-info">
-          <h2>Overview</h2>
-          <p>{movie.overview}</p>
-          
-          <div className="detail-actions">
-            <button 
-              className={isInWatchlist ? 'remove' : 'add'}
-              onClick={() => isInWatchlist ? removeFromWatchlist(movie.id) : addToWatchlist(movie)}
-            >
-              {isInWatchlist ? '✓ In Watchlist' : '+ Add to Watchlist'}
-            </button>
-            
-            {movie.homepage && (
-              <a 
-                href={movie.homepage} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="official-site"
-              >
-                Official Website
-              </a>
+      <div className="container">
+        <div className="movie-content">
+          {/* Poster */}
+          <div className="poster-container">
+            {selectedMovie.poster_path ? (
+              <img 
+                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`} 
+                alt={selectedMovie.title}
+                className="movie-poster"
+              />
+            ) : (
+              <div className="poster-placeholder">
+                <span>No Image</span>
+              </div>
             )}
           </div>
           
-          <div className="detail-cast">
-            <h3>Cast</h3>
-            <div className="cast-grid">
-              {movie.credits?.cast?.slice(0, 6).map(person => (
-                <div key={person.id} className="cast-member">
-                  {person.profile_path ? (
-                    <img 
-                      src={`https://image.tmdb.org/t/p/w200${person.profile_path}`} 
-                      alt={person.name}
-                    />
-                  ) : (
-                    <div className="cast-placeholder"></div>
-                  )}
-                  <p>{person.name}</p>
-                  <p className="character">{person.character}</p>
+          {/* Details */}
+          <div className="details">
+            <h1 className="title">{selectedMovie.title}</h1>
+            
+            {selectedMovie.tagline && (
+              <p className="tagline">{selectedMovie.tagline}</p>
+            )}
+            
+            <div className="meta">
+              <div className="release">
+                <strong>Release Date:</strong> {selectedMovie.release_date}
+              </div>
+              
+              <div className="rating">
+                <strong>Rating:</strong> {selectedMovie.vote_average.toFixed(1)}/10 
+                ({selectedMovie.vote_count} votes)
+              </div>
+              
+              {selectedMovie.runtime && (
+                <div className="runtime">
+                  <strong>Runtime:</strong> {selectedMovie.runtime} minutes
                 </div>
-              ))}
+              )}
             </div>
+            
+            {selectedMovie.genres?.length > 0 && (
+              <div className="genres">
+                <strong>Genres:</strong>
+                <div className="genre-list">
+                  {selectedMovie.genres.map(genre => (
+                    <span key={genre.id} className="genre-tag">{genre.name}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="overview">
+              <h3>Overview</h3>
+              <p>{selectedMovie.overview}</p>
+            </div>
+            
+            {selectedMovie.director && (
+              <div className="director">
+                <strong>Director:</strong> {selectedMovie.director}
+              </div>
+            )}
+            
+            {selectedMovie.cast?.length > 0 && (
+              <div className="cast">
+                <strong>Cast:</strong>
+                <div className="cast-list">
+                  {selectedMovie.cast.join(', ')}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default MovieDetail;
+}

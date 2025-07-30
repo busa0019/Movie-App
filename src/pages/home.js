@@ -1,40 +1,50 @@
-import { useEffect } from 'react';
 import { useMovieContext } from '../context/MovieContext';
-import { fetchMovies } from '../services/api';
-import SearchBar from '../components/SearchBar';
-import GenreFilter from '../components/GenreFilter';
-import MovieCard from '../components/MovieCard';
+import MovieSection from '../components/MovieSection';
 
 export default function Home() {
-  const { movies, setMovies } = useMovieContext();
+  const { 
+    trending, 
+    popular, 
+    topRated,
+    nowPlaying,
+    isLoading 
+  } = useMovieContext();
 
-  useEffect(() => {
-    const loadMovies = async () => {
-      try {
-        const data = await fetchMovies();
-        setMovies(data);
-      } catch (error) {
-        console.error('Failed to load movies:', error);
-        setMovies([]);
-      }
-    };
-    
-    loadMovies();
-  }, [setMovies]);
+  if (isLoading) {
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>Loading movies...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
-      <SearchBar />
-      <GenreFilter />
-      
-      <div className="movie-grid">
-        {movies.length > 0 ? (
-          movies.map(movie => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))
-        ) : (
-          <div className="loading-message">Loading movies...</div>
-        )}
+      <div className="container">
+        <MovieSection 
+          title="Trending This Week" 
+          movies={trending} 
+          category="trending"
+        />
+        
+        <MovieSection 
+          title="Popular Movies" 
+          movies={popular} 
+          category="popular"
+        />
+        
+        <MovieSection 
+          title="Top Rated" 
+          movies={topRated} 
+          category="top-rated"
+        />
+        
+        <MovieSection 
+          title="Now Playing" 
+          movies={nowPlaying} 
+          category="now-playing"
+        />
       </div>
     </div>
   );

@@ -5,7 +5,8 @@ import {
   fetchTopRatedMovies,
   fetchNowPlayingMovies,
   fetchMovieDetails,
-  fetchGenres
+  fetchGenres,
+  searchMovies // Added search function
 } from '../services/api';
 
 const MovieContext = createContext();
@@ -21,6 +22,7 @@ export function MovieProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('All');
+  const [searchResults, setSearchResults] = useState([]); // Added search results
   
   // Load initial data
   useEffect(() => {
@@ -50,6 +52,32 @@ export function MovieProvider({ children }) {
     
     loadData();
   }, []);
+
+  // NEW: Search movies when query changes
+  useEffect(() => {
+    if (searchQuery) {
+      const search = async () => {
+        setIsLoading(true);
+        try {
+          const results = await searchMovies(searchQuery);
+          setSearchResults(results);
+        } catch (error) {
+          console.error('Search failed:', error);
+          setSearchResults([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      const timer = setTimeout(() => {
+        search();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
 
   // Get movie details
   const getMovieDetails = async (id) => {
@@ -91,7 +119,8 @@ export function MovieProvider({ children }) {
     genres,
     selectedGenre,
     setSelectedGenre,
-    isLoading
+    isLoading,
+    searchResults // Added search results
   };
 
   return (

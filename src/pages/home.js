@@ -7,7 +7,8 @@ export default function Home() {
     popular, 
     topRated,
     nowPlaying,
-    isLoading 
+    isLoading,
+    searchQuery
   } = useMovieContext();
 
   if (isLoading) {
@@ -15,6 +16,17 @@ export default function Home() {
       <div className="loading">
         <div className="spinner"></div>
         <p>Loading movies...</p>
+      </div>
+    );
+  }
+
+  // Hide movie sections when searching
+  if (searchQuery) {
+    return (
+      <div className="home-page">
+        <div className="container">
+          <p>Searching for movies...</p>
+        </div>
       </div>
     );
   }

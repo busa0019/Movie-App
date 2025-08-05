@@ -21,6 +21,7 @@ export async function fetchTrendingMovies() {
     const response = await fetch(
       `${BASE_URL}/trending/movie/day?api_key=${API_KEY}`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     return processMovies(data.results.slice(0, 8));
   } catch (error) {
@@ -34,6 +35,7 @@ export async function fetchPopularMovies() {
     const response = await fetch(
       `${BASE_URL}/movie/popular?api_key=${API_KEY}`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     return processMovies(data.results.slice(0, 8));
   } catch (error) {
@@ -47,6 +49,7 @@ export async function fetchTopRatedMovies() {
     const response = await fetch(
       `${BASE_URL}/movie/top_rated?api_key=${API_KEY}`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     return processMovies(data.results.slice(0, 8));
   } catch (error) {
@@ -60,6 +63,7 @@ export async function fetchNowPlayingMovies() {
     const response = await fetch(
       `${BASE_URL}/movie/now_playing?api_key=${API_KEY}`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     return processMovies(data.results.slice(0, 8));
   } catch (error) {
@@ -73,6 +77,7 @@ export async function fetchMovieDetails(id) {
     const response = await fetch(
       `${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     
     return {
@@ -101,10 +106,26 @@ export async function fetchGenres() {
     const response = await fetch(
       `${BASE_URL}/genre/movie/list?api_key=${API_KEY}`
     );
+    if (!response.ok) throw new Error('API Error');
     const data = await response.json();
     return data.genres;
   } catch (error) {
     console.error('Error fetching genres:', error);
+    return [];
+  }
+}
+
+// NEW: Search movies function
+export async function searchMovies(query) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+    );
+    if (!response.ok) throw new Error('API Error');
+    const data = await response.json();
+    return processMovies(data.results);
+  } catch (error) {
+    console.error('Error searching movies:', error);
     return [];
   }
 }

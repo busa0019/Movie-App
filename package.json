@@ -2,7 +2,7 @@
   "name": "movie-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://busa0019.github.io/Movie-App",
+  "homepage": ".",
   "dependencies": {
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
@@ -26,25 +26,17 @@
     "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": ["react-app", "react-app/jest"]
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
     "shx": "^0.3.4"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

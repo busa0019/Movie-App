@@ -1,19 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
 import { MovieProvider } from './context/MovieContext';
 import './index.css';
 
 const isGhPages = /github\.io$/i.test(window.location.hostname);
-const repoName = window.location.pathname.split('/')[1]; // "Movie-App" on GH Pages
-const basename = isGhPages ? `/${repoName}` : '/';
+const repoBase = `/${window.location.pathname.split('/')[1]}`; // "/Movie-App"
+
+const Router = isGhPages ? HashRouter : BrowserRouter;
+const basename = isGhPages ? '' : '/'; // HashRouter ignores basename
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter basename={basename}>
+  <Router basename={basename}>
     <MovieProvider>
       <App />
     </MovieProvider>
-  </BrowserRouter>
+  </Router>
 );

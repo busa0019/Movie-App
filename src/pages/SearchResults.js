@@ -19,9 +19,7 @@ export default function SearchResults() {
         <h2>Search Results for "{searchQuery}"</h2>
         {searchResults.length > 0 ? (
           <div className="movie-grid">
-            {searchResults.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
+            {searchResults.map((m) => <MovieCard key={m.id} movie={m} />)}
           </div>
         ) : (
           <p>No movies found. Try another search.</p>

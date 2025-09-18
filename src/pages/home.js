@@ -1,20 +1,23 @@
 import { useMovieContext } from '../context/MovieContext';
 import MovieSection from '../components/MovieSection';
-import MovieCard from '../components/MovieCard'; // Import MovieCard
+import MovieCard from '../components/MovieCard';
 
 export default function Home() {
-  const { 
-    trending, 
-    popular, 
+  const {
+    trending,
+    popular,
     topRated,
     nowPlaying,
     isLoading,
     searchQuery,
     selectedGenre,
-    genreMovies
+    genreMovies,
+    genrePage,
+    genreTotalPages,
+    loadMoreGenre,
   } = useMovieContext();
 
-  if (isLoading) {
+  if (isLoading && !trending.length && !genreMovies.length) {
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -23,23 +26,7 @@ export default function Home() {
     );
   }
 
-  // Show genre-specific movies if a genre is selected
-  if (selectedGenre.id) {
-    return (
-      <div className="home-page">
-        <div className="container">
-          <h2 className="section-title">{selectedGenre.name} Movies</h2>
-          <div className="movie-grid">
-            {genreMovies.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Hide movie sections when searching
+  // When searching, we let /search route render results — here we can show a hint.
   if (searchQuery) {
     return (
       <div className="home-page">
@@ -50,32 +37,38 @@ export default function Home() {
     );
   }
 
+  // Show genre results if a genre is selected
+  if (selectedGenre.id) {
+    return (
+      <div className="home-page">
+        <div className="container">
+          <h2 className="section-title">{selectedGenre.name} Movies</h2>
+          <div className="movie-grid">
+            {genreMovies.map((m) => (
+              <MovieCard key={m.id} movie={m} />
+            ))}
+          </div>
+
+          {genrePage < genreTotalPages && (
+            <div className="more-container">
+              <button className="btn more-btn" onClick={loadMoreGenre}>
+                {isLoading ? 'Loading…' : 'Load More'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Default sections
   return (
     <div className="home-page">
       <div className="container">
-        <MovieSection 
-          title="Trending This Week" 
-          movies={trending} 
-          category="trending"
-        />
-        
-        <MovieSection 
-          title="Popular Movies" 
-          movies={popular} 
-          category="popular"
-        />
-        
-        <MovieSection 
-          title="Top Rated" 
-          movies={topRated} 
-          category="top-rated"
-        />
-        
-        <MovieSection 
-          title="Now Playing" 
-          movies={nowPlaying} 
-          category="now-playing"
-        />
+        <MovieSection title="Trending This Week" movies={trending} category="trending" />
+        <MovieSection title="Popular Movies" movies={popular} category="popular" />
+        <MovieSection title="Top Rated" movies={topRated} category="top-rated" />
+        <MovieSection title="Now Playing" movies={nowPlaying} category="now-playing" />
       </div>
     </div>
   );

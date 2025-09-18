@@ -1,4 +1,4 @@
-// src/services/api.js
+
 
 // Prefer .env: REACT_APP_TMDB_API_KEY=your_tmdb_key
 const API_KEY = process.env.REACT_APP_TMDB_API_KEY || '534ad87f20edc3517addc5079baeccfe';
@@ -128,7 +128,7 @@ export async function searchMovies(query) {
   }
 }
 
-// NEW: Discover by genre (single id or array of ids)
+// NEW: Discover by genre (paged, returns items + totalPages)
 export async function fetchMoviesByGenre(genreIds, page = 1) {
   const ids = Array.isArray(genreIds) ? genreIds.join(',') : String(genreIds);
   try {
@@ -139,9 +139,13 @@ export async function fetchMoviesByGenre(genreIds, page = 1) {
     );
     if (!res.ok) throw new Error('API Error');
     const data = await res.json();
-    return processMovies(data.results.slice(0, 8));
+    return {
+      items: processMovies(data.results || []),
+      totalPages: data.total_pages || 1,
+    };
   } catch (err) {
     console.error('Error fetching movies by genre:', err);
-    return [];
+    return { items: [], totalPages: 1 };
   }
 }
+

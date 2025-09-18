@@ -1,41 +1,29 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMovieContext } from '../context/MovieContext';
 
-const MovieMatch = () => {
-  const { movies } = useMovieContext();
+export default function MovieMatch() {
+  const { trending, popular, topRated } = useMovieContext();
   const [friendName, setFriendName] = useState('');
   const [matchResult, setMatchResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const findMovieMatch = () => {
     if (!friendName.trim()) return;
-    
     setIsLoading(true);
-    
-    // Simulate API call
+
     setTimeout(() => {
-      const allMovies = [
-        ...movies.trending,
-        ...movies.popular,
-        ...movies.top_rated
-      ];
-      
-      const shuffled = [...allMovies].sort(() => 0.5 - Math.random());
-      const recommendations = shuffled.slice(0, 3);
-      
-      setMatchResult({
-        friendName,
-        recommendations
-      });
+      const all = [...trending, ...popular, ...topRated];
+      const recs = all.sort(() => 0.5 - Math.random()).slice(0, 3);
+      setMatchResult({ friendName, recommendations: recs });
       setIsLoading(false);
-    }, 1500);
+    }, 800);
   };
 
   return (
     <div className="movie-match">
       <h2>Movie Match</h2>
       <p>Find movies you and your friends both love!</p>
-      
+
       <div className="match-form">
         <input
           type="text"
@@ -48,7 +36,7 @@ const MovieMatch = () => {
           {isLoading ? 'Finding matches...' : 'Find Match'}
         </button>
       </div>
-      
+
       {matchResult && (
         <div className="match-result">
           <h3>Movies for {matchResult.friendName} and You</h3>
@@ -56,9 +44,9 @@ const MovieMatch = () => {
             {matchResult.recommendations.map(movie => (
               <div key={movie.id} className="recommendation-card">
                 {movie.poster_path ? (
-                  <img 
-                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-                    alt={movie.title} 
+                  <img
+                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                    alt={movie.title}
                   />
                 ) : (
                   <div className="recommendation-placeholder">
@@ -76,6 +64,4 @@ const MovieMatch = () => {
       )}
     </div>
   );
-};
-
-export default MovieMatch;
+}

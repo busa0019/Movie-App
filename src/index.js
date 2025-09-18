@@ -6,7 +6,6 @@ import { MovieProvider } from './context/MovieContext';
 import './index.css';
 
 const isGhPages = /github\.io$/i.test(window.location.hostname);
-const repoBase = `/${window.location.pathname.split('/')[1]}`; // "/Movie-App"
 
 const Router = isGhPages ? HashRouter : BrowserRouter;
 const basename = isGhPages ? '' : '/'; // HashRouter ignores basename

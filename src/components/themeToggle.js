@@ -1,14 +1,15 @@
+import { useEffect } from 'react';
 import { useMovieContext } from '../context/MovieContext';
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useMovieContext();
-  
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+
+  useEffect(() => {
+    document.body.dataset.theme = theme; // use in CSS if you add themes
+  }, [theme]);
 
   return (
-    <button onClick={toggleTheme}>
+    <button className="btn btn-outline" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
       {theme === 'light' ? '🌙 Dark' : '☀️ Light'} Mode
     </button>
   );

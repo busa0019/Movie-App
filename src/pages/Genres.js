@@ -2,16 +2,14 @@ import { useMovieContext } from '../context/MovieContext';
 import MovieCard from '../components/MovieCard';
 
 export default function Genres() {
-  const { 
-    genres, 
-    selectedGenre, 
-    setSelectedGenre, 
-    genreMovies, 
+  const {
+    genres,
+    selectedGenre,
+    setSelectedGenre,
+    genreMovies,
     isLoading,
-    loadMore,
-    currentPage,
-    totalPages,
-    setCurrentPage  // Added setCurrentPage
+    loadMoreGenre,
+    hasMoreGenre,
   } = useMovieContext();
 
   return (
@@ -20,32 +18,27 @@ export default function Genres() {
         <div className="genre-selector">
           <h2>Browse by Genre</h2>
           <div className="genre-tags">
-            {genres.map(genre => (
+            {genres.map((g) => (
               <button
-                key={genre.id}
-                className={`genre-tag ${selectedGenre && selectedGenre.id === genre.id ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedGenre(genre);
-                  setCurrentPage(1); // Now defined
-                }}
+                key={String(g.id)}
+                className={`genre-tag ${selectedGenre?.id === g.id ? 'active' : ''}`}
+                onClick={() => setSelectedGenre(g)}
               >
-                {genre.name}
+                {g.name}
               </button>
             ))}
           </div>
         </div>
-        
+
         <h2>{selectedGenre ? selectedGenre.name : 'All'} Movies</h2>
-        
+
         <div className="movie-grid">
-          {genreMovies && genreMovies.map(movie => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
+          {genreMovies.map((m) => <MovieCard key={m.id} movie={m} />)}
         </div>
-        
-        {currentPage < totalPages && (
+
+        {hasMoreGenre && (
           <div className="load-more">
-            <button onClick={loadMore} disabled={isLoading}>
+            <button onClick={loadMoreGenre} disabled={isLoading}>
               {isLoading ? 'Loading...' : 'Load More'}
             </button>
           </div>

@@ -7,15 +7,13 @@ export default function MovieDetail() {
   const { selectedMovie, getMovieDetails, isLoading } = useMovieContext();
 
   useEffect(() => {
-    if (id) {
-      getMovieDetails(id);
-    }
+    if (id) getMovieDetails(id);
   }, [id, getMovieDetails]);
 
   if (isLoading) {
     return (
       <div className="loading">
-        <div className="spinner"></div>
+        <div className="spinner" />
         <p>Loading movie details...</p>
       </div>
     );
@@ -24,31 +22,53 @@ export default function MovieDetail() {
   if (!selectedMovie) {
     return (
       <div className="movie-detail error">
-        <h2>Movie Not Found</h2>
-        <p>Sorry, we couldn't find the movie you're looking for.</p>
-        <Link to="/" className="btn">Back to Home</Link>
+        <div className="container">
+          <h2>Movie Not Found</h2>
+          <p>Sorry, we couldn’t find the movie you’re looking for.</p>
+          <Link to="/" className="btn">Back to Home</Link>
+        </div>
       </div>
     );
   }
 
+  const {
+    title,
+    tagline,
+    overview,
+    poster_path,
+    backdrop_path,
+    release_date,
+    runtime,
+    vote_average,
+    vote_count,
+    genres,
+    director,
+    cast,
+  } = selectedMovie;
+
+  const ratingText =
+    typeof vote_average === 'number' ? `${vote_average.toFixed(1)}/10` : 'N/A';
+
   return (
     <div className="movie-detail">
       {/* Backdrop */}
-      <div 
-        className="backdrop" 
-        style={{ 
-          backgroundImage: `url(https://image.tmdb.org/t/p/original${selectedMovie.backdrop_path})` 
-        }}
+      <div
+        className="backdrop"
+        style={
+          backdrop_path
+            ? { backgroundImage: `url(https://image.tmdb.org/t/p/original${backdrop_path})` }
+            : { backgroundColor: '#1e293b' }
+        }
       />
-      
+
       <div className="container">
         <div className="movie-content">
           {/* Poster */}
           <div className="poster-container">
-            {selectedMovie.poster_path ? (
-              <img 
-                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`} 
-                alt={selectedMovie.title}
+            {poster_path ? (
+              <img
+                src={`https://image.tmdb.org/t/p/w500${poster_path}`}
+                alt={title}
                 className="movie-poster"
               />
             ) : (
@@ -57,62 +77,68 @@ export default function MovieDetail() {
               </div>
             )}
           </div>
-          
+
           {/* Details */}
           <div className="details">
-            <h1 className="title">{selectedMovie.title}</h1>
-            
-            {selectedMovie.tagline && (
-              <p className="tagline">{selectedMovie.tagline}</p>
-            )}
-            
+            <h1 className="title">{title}</h1>
+
+            {tagline ? <p className="tagline">{tagline}</p> : null}
+
             <div className="meta">
-              <div className="release">
-                <strong>Release Date:</strong> {selectedMovie.release_date}
-              </div>
-              
-              <div className="rating">
-                <strong>Rating:</strong> {selectedMovie.vote_average.toFixed(1)}/10 
-                ({selectedMovie.vote_count} votes)
-              </div>
-              
-              {selectedMovie.runtime && (
-                <div className="runtime">
-                  <strong>Runtime:</strong> {selectedMovie.runtime} minutes
+              {release_date && (
+                <div className="release">
+                  <strong>Release Date:</strong> {release_date}
                 </div>
               )}
+
+              <div className="rating">
+                <strong>Rating:</strong> {ratingText}
+                {typeof vote_count === 'number' ? ` (${vote_count} votes)` : ''}
+              </div>
+
+              {runtime ? (
+                <div className="runtime">
+                  <strong>Runtime:</strong> {runtime} minutes
+                </div>
+              ) : null}
             </div>
-            
-            {selectedMovie.genres?.length > 0 && (
+
+            {genres?.length ? (
               <div className="genres">
                 <strong>Genres:</strong>
                 <div className="genre-list">
-                  {selectedMovie.genres.map(genre => (
-                    <span key={genre.id} className="genre-tag">{genre.name}</span>
+                  {genres.map((g) => (
+                    <span key={g.id} className="genre-tag">
+                      {g.name}
+                    </span>
                   ))}
                 </div>
               </div>
-            )}
-            
-            <div className="overview">
-              <h3>Overview</h3>
-              <p>{selectedMovie.overview}</p>
-            </div>
-            
-            {selectedMovie.director && (
+            ) : null}
+
+            {overview ? (
+              <div className="overview">
+                <h3>Overview</h3>
+                <p>{overview}</p>
+              </div>
+            ) : null}
+
+            {director ? (
               <div className="director">
-                <strong>Director:</strong> {selectedMovie.director}
+                <strong>Director:</strong> {director}
               </div>
-            )}
-            
-            {selectedMovie.cast?.length > 0 && (
+            ) : null}
+
+            {cast?.length ? (
               <div className="cast">
-                <strong>Cast:</strong>
-                <div className="cast-list">
-                  {selectedMovie.cast.join(', ')}
-                </div>
+                <strong>Cast:</strong>{' '}
+                <div className="cast-list">{cast.join(', ')}</div>
               </div>
-            )}
+            ) : null}
+
+            <div style={{ marginTop: '20px' }}>
+              <Link to="/" className="btn">← Back to Home</Link>
+            </div>
           </div>
         </div>
       </div>

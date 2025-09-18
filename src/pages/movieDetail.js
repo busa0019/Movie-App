@@ -4,16 +4,17 @@ import { useMovieContext } from '../context/MovieContext';
 
 export default function MovieDetail() {
   const { id } = useParams();
-  const { selectedMovie, getMovieDetails, isLoading } = useMovieContext();
+  const { selectedMovie, trailerKey, getMovieDetails, isLoading } = useMovieContext();
 
   useEffect(() => {
-    if (id) getMovieDetails(id);
+    // getMovieDetails is memoized in context
+    getMovieDetails(id);
   }, [id, getMovieDetails]);
 
-  if (isLoading) {
+  if (isLoading && !selectedMovie) {
     return (
       <div className="loading">
-        <div className="spinner" />
+        <div className="spinner"></div>
         <p>Loading movie details...</p>
       </div>
     );
@@ -22,124 +23,80 @@ export default function MovieDetail() {
   if (!selectedMovie) {
     return (
       <div className="movie-detail error">
-        <div className="container">
-          <h2>Movie Not Found</h2>
-          <p>Sorry, we couldn’t find the movie you’re looking for.</p>
-          <Link to="/" className="btn">Back to Home</Link>
-        </div>
+        <h2>Movie Not Found</h2>
+        <p>Sorry, we couldn't find the movie you're looking for.</p>
+        <Link to="/" className="btn">Back to Home</Link>
       </div>
     );
   }
 
-  const {
-    title,
-    tagline,
-    overview,
-    poster_path,
-    backdrop_path,
-    release_date,
-    runtime,
-    vote_average,
-    vote_count,
-    genres,
-    director,
-    cast,
-  } = selectedMovie;
-
-  const ratingText =
-    typeof vote_average === 'number' ? `${vote_average.toFixed(1)}/10` : 'N/A';
-
   return (
     <div className="movie-detail">
-      {/* Backdrop */}
       <div
         className="backdrop"
-        style={
-          backdrop_path
-            ? { backgroundImage: `url(https://image.tmdb.org/t/p/original${backdrop_path})` }
-            : { backgroundColor: '#1e293b' }
-        }
+        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${selectedMovie.backdrop_path})` }}
       />
-
       <div className="container">
         <div className="movie-content">
-          {/* Poster */}
           <div className="poster-container">
-            {poster_path ? (
+            {selectedMovie.poster_path ? (
               <img
-                src={`https://image.tmdb.org/t/p/w500${poster_path}`}
-                alt={title}
+                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
+                alt={selectedMovie.title}
                 className="movie-poster"
               />
             ) : (
-              <div className="poster-placeholder">
-                <span>No Image</span>
-              </div>
+              <div className="poster-placeholder"><span>No Image</span></div>
             )}
           </div>
 
-          {/* Details */}
           <div className="details">
-            <h1 className="title">{title}</h1>
-
-            {tagline ? <p className="tagline">{tagline}</p> : null}
+            <h1 className="title">{selectedMovie.title}</h1>
+            {selectedMovie.tagline && <p className="tagline">{selectedMovie.tagline}</p>}
 
             <div className="meta">
-              {release_date && (
-                <div className="release">
-                  <strong>Release Date:</strong> {release_date}
-                </div>
-              )}
-
+              <div className="release"><strong>Release Date:</strong> {selectedMovie.release_date}</div>
               <div className="rating">
-                <strong>Rating:</strong> {ratingText}
-                {typeof vote_count === 'number' ? ` (${vote_count} votes)` : ''}
+                <strong>Rating:</strong> {selectedMovie.vote_average?.toFixed(1)}/10 ({selectedMovie.vote_count} votes)
               </div>
-
-              {runtime ? (
-                <div className="runtime">
-                  <strong>Runtime:</strong> {runtime} minutes
-                </div>
-              ) : null}
+              {selectedMovie.runtime && <div className="runtime"><strong>Runtime:</strong> {selectedMovie.runtime} min</div>}
             </div>
 
-            {genres?.length ? (
+            {selectedMovie.genres?.length > 0 && (
               <div className="genres">
                 <strong>Genres:</strong>
                 <div className="genre-list">
-                  {genres.map((g) => (
-                    <span key={g.id} className="genre-tag">
-                      {g.name}
-                    </span>
-                  ))}
+                  {selectedMovie.genres.map((g) => <span key={g.id} className="genre-tag">{g.name}</span>)}
                 </div>
               </div>
-            ) : null}
+            )}
 
-            {overview ? (
-              <div className="overview">
-                <h3>Overview</h3>
-                <p>{overview}</p>
-              </div>
-            ) : null}
-
-            {director ? (
-              <div className="director">
-                <strong>Director:</strong> {director}
-              </div>
-            ) : null}
-
-            {cast?.length ? (
-              <div className="cast">
-                <strong>Cast:</strong>{' '}
-                <div className="cast-list">{cast.join(', ')}</div>
-              </div>
-            ) : null}
-
-            <div style={{ marginTop: '20px' }}>
-              <Link to="/" className="btn">← Back to Home</Link>
+            <div className="overview">
+              <h3>Overview</h3>
+              <p>{selectedMovie.overview}</p>
             </div>
+
+            {selectedMovie.director && (
+              <div className="director"><strong>Director:</strong> {selectedMovie.director}</div>
+            )}
+
+            {trailerKey && (
+              <div style={{ marginTop: 20 }}>
+                <a
+                  className="btn"
+                  href={`https://www.youtube.com/watch?v=${trailerKey}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ▶ Watch Trailer
+                </a>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <Link to="/" className="btn btn-outline">← Back</Link>
         </div>
       </div>
     </div>

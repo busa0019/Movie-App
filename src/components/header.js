@@ -40,9 +40,7 @@ export default function Header() {
                 <button onClick={logout} className="btn logout-btn">Logout</button>
               </div>
             ) : (
-              <button onClick={() => navigate('/auth')} className="btn login-btn">
-                Login
-              </button>
+              <button onClick={() => navigate('/auth')} className="btn login-btn">Login</button>
             )}
           </div>
 

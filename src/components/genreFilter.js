@@ -1,23 +1,22 @@
 import { useMovieContext } from '../context/MovieContext';
-import { useNavigate } from 'react-router-dom';
 
 export default function GenreFilter() {
   const { genres, selectedGenre, setSelectedGenre } = useMovieContext();
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const id = e.target.value; // string
-    const genre = genres.find((g) => g.id === id) || { id: '', name: 'All' };
+    const raw = e.target.value;              // '' or '28'
+    const id = raw === '' ? '' : Number(raw);
+    const genre = genres.find(g => g.id === id) || { id: '', name: 'All' };
     setSelectedGenre(genre);
-    // Make sure results are visible on Home
-    navigate('/');
   };
+
+  const value = selectedGenre.id === '' ? '' : String(selectedGenre.id);
 
   return (
     <div className="genre-filter">
-      <select value={selectedGenre.id} onChange={handleChange}>
-        {genres.map((g) => (
-          <option key={g.id || 'all'} value={g.id}>
+      <select value={value} onChange={handleChange}>
+        {genres.map(g => (
+          <option key={g.id || 'all'} value={g.id === '' ? '' : String(g.id)}>
             {g.name}
           </option>
         ))}

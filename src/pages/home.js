@@ -4,20 +4,19 @@ import MovieCard from '../components/MovieCard';
 
 export default function Home() {
   const {
-    trending,
-    popular,
-    topRated,
-    nowPlaying,
     isLoading,
+    // lists
+    trending, trendingPage, trendingTotal, loadMoreTrending,
+    popular,  popularPage,  popularTotal,  loadMorePopular,
+    topRated, topRatedPage, topRatedTotal, loadMoreTopRated,
+    nowPlaying, nowPlayingPage, nowPlayingTotal, loadMoreNowPlaying,
+    // genre
+    selectedGenre, genreMovies, genrePage, genreTotal, loadMoreGenre,
+    // search
     searchQuery,
-    selectedGenre,
-    genreMovies,
-    genrePage,
-    genreTotalPages,
-    loadMoreGenre,
   } = useMovieContext();
 
-  if (isLoading && !trending.length && !genreMovies.length) {
+  if (isLoading && !trending.length && !popular.length && !topRated.length && !nowPlaying.length) {
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -26,33 +25,19 @@ export default function Home() {
     );
   }
 
-  // When searching, we let /search route render results — here we can show a hint.
-  if (searchQuery) {
-    return (
-      <div className="home-page">
-        <div className="container">
-          <p>Searching for movies...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show genre results if a genre is selected
+  // If a genre is selected, show a dedicated page-like section
   if (selectedGenre.id) {
     return (
       <div className="home-page">
         <div className="container">
           <h2 className="section-title">{selectedGenre.name} Movies</h2>
           <div className="movie-grid">
-            {genreMovies.map((m) => (
-              <MovieCard key={m.id} movie={m} />
-            ))}
+            {genreMovies.map((m) => <MovieCard key={m.id} movie={m} />)}
           </div>
-
-          {genrePage < genreTotalPages && (
+          {genrePage < genreTotal && (
             <div className="more-container">
-              <button className="btn more-btn" onClick={loadMoreGenre}>
-                {isLoading ? 'Loading…' : 'Load More'}
+              <button className="btn btn-outline more-btn" onClick={loadMoreGenre}>
+                Load more
               </button>
             </div>
           )}
@@ -61,14 +46,44 @@ export default function Home() {
     );
   }
 
-  // Default sections
+  // Hide sections when actively searching
+  if (searchQuery) {
+    return (
+      <div className="home-page">
+        <div className="container">
+          <p>Searching for "{searchQuery}"…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="home-page">
       <div className="container">
-        <MovieSection title="Trending This Week" movies={trending} category="trending" />
-        <MovieSection title="Popular Movies" movies={popular} category="popular" />
-        <MovieSection title="Top Rated" movies={topRated} category="top-rated" />
-        <MovieSection title="Now Playing" movies={nowPlaying} category="now-playing" />
+        <MovieSection
+          title="Trending This Week"
+          movies={trending}
+          hasMore={trendingPage < trendingTotal}
+          onLoadMore={loadMoreTrending}
+        />
+        <MovieSection
+          title="Popular Movies"
+          movies={popular}
+          hasMore={popularPage < popularTotal}
+          onLoadMore={loadMorePopular}
+        />
+        <MovieSection
+          title="Top Rated"
+          movies={topRated}
+          hasMore={topRatedPage < topRatedTotal}
+          onLoadMore={loadMoreTopRated}
+        />
+        <MovieSection
+          title="In Theaters"
+          movies={nowPlaying}
+          hasMore={nowPlayingPage < nowPlayingTotal}
+          onLoadMore={loadMoreNowPlaying}
+        />
       </div>
     </div>
   );

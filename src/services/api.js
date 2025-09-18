@@ -1,151 +1,106 @@
-
-
 // Prefer .env: REACT_APP_TMDB_API_KEY=your_tmdb_key
 const API_KEY = process.env.REACT_APP_TMDB_API_KEY || '534ad87f20edc3517addc5079baeccfe';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
-// Normalize movie objects for consistent use in the app
-const processMovies = (movies) =>
-  movies.map((movie) => ({
-    id: movie.id,
-    title: movie.title,
-    poster_path: movie.poster_path,
-    backdrop_path: movie.backdrop_path,
-    release_date: movie.release_date,
-    vote_average: movie.vote_average,
-    vote_count: movie.vote_count,
-    overview: movie.overview,
-    genre_ids: movie.genre_ids,
+const processMovies = (movies = []) =>
+  movies.map((m) => ({
+    id: m.id,
+    title: m.title,
+    poster_path: m.poster_path,
+    backdrop_path: m.backdrop_path,
+    release_date: m.release_date,
+    vote_average: m.vote_average ?? 0,
+    vote_count: m.vote_count ?? 0,
+    overview: m.overview,
+    genre_ids: m.genre_ids,
   }));
 
-// Trending (day)
-export async function fetchTrendingMovies() {
-  try {
-    const res = await fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}`);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return processMovies(data.results.slice(0, 8));
-  } catch (err) {
-    console.error('Error fetching trending movies:', err);
-    return [];
-  }
+// Each list returns { movies: Movie[], totalPages: number }
+export async function fetchTrendingMovies(page = 1) {
+  const res = await fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}&page=${page}`);
+  if (!res.ok) return { movies: [], totalPages: 1 };
+  const data = await res.json();
+  return { movies: processMovies(data.results).slice(0, 8), totalPages: data.total_pages || 1 };
 }
 
-// Popular
-export async function fetchPopularMovies() {
-  try {
-    const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return processMovies(data.results.slice(0, 8));
-  } catch (err) {
-    console.error('Error fetching popular movies:', err);
-    return [];
-  }
+export async function fetchPopularMovies(page = 1) {
+  const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`);
+  if (!res.ok) return { movies: [], totalPages: 1 };
+  const data = await res.json();
+  return { movies: processMovies(data.results).slice(0, 8), totalPages: data.total_pages || 1 };
 }
 
-// Top Rated
-export async function fetchTopRatedMovies() {
-  try {
-    const res = await fetch(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return processMovies(data.results.slice(0, 8));
-  } catch (err) {
-    console.error('Error fetching top rated movies:', err);
-    return [];
-  }
+export async function fetchTopRatedMovies(page = 1) {
+  const res = await fetch(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}&page=${page}`);
+  if (!res.ok) return { movies: [], totalPages: 1 };
+  const data = await res.json();
+  return { movies: processMovies(data.results).slice(0, 8), totalPages: data.total_pages || 1 };
 }
 
-// Now Playing
-export async function fetchNowPlayingMovies() {
-  try {
-    const res = await fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}`);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return processMovies(data.results.slice(0, 8));
-  } catch (err) {
-    console.error('Error fetching now playing movies:', err);
-    return [];
-  }
+export async function fetchNowPlayingMovies(page = 1) {
+  const res = await fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&page=${page}`);
+  if (!res.ok) return { movies: [], totalPages: 1 };
+  const data = await res.json();
+  return { movies: processMovies(data.results).slice(0, 8), totalPages: data.total_pages || 1 };
 }
 
-// Movie Details (with credits for cast/director)
+// Details + Credits
 export async function fetchMovieDetails(id) {
-  try {
-    const res = await fetch(
-      `${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits`
-    );
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-
-    return {
-      id: data.id,
-      title: data.title,
-      tagline: data.tagline,
-      overview: data.overview,
-      poster_path: data.poster_path,
-      backdrop_path: data.backdrop_path,
-      release_date: data.release_date,
-      runtime: data.runtime,
-      vote_average: data.vote_average,
-      vote_count: data.vote_count,
-      genres: data.genres,
-      cast: data.credits?.cast?.slice(0, 5).map((a) => a.name) || [],
-      director: data.credits?.crew?.find((m) => m.job === 'Director')?.name || null,
-    };
-  } catch (err) {
-    console.error('Error fetching movie details:', err);
-    return null;
-  }
+  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits`);
+  if (!res.ok) return null;
+  const d = await res.json();
+  return {
+    id: d.id,
+    title: d.title,
+    tagline: d.tagline,
+    overview: d.overview,
+    poster_path: d.poster_path,
+    backdrop_path: d.backdrop_path,
+    release_date: d.release_date,
+    runtime: d.runtime,
+    vote_average: d.vote_average,
+    vote_count: d.vote_count,
+    genres: d.genres,
+    cast: d.credits?.cast?.slice(0, 5).map((a) => a.name) || [],
+    director: d.credits?.crew?.find((m) => m.job === 'Director')?.name || null,
+  };
 }
 
-// Genres list
+// Trailer videos (YouTube)
+export async function fetchMovieVideos(id) {
+  const res = await fetch(`${BASE_URL}/movie/${id}/videos?api_key=${API_KEY}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
+}
+
+// Genres
 export async function fetchGenres() {
-  try {
-    const res = await fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return data.genres || [];
-  } catch (err) {
-    console.error('Error fetching genres:', err);
-    return [];
-  }
+  const res = await fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.genres || [];
 }
 
-// Search by query
-export async function searchMovies(query) {
-  try {
-    const res = await fetch(
-      `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
-    );
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return processMovies(data.results || []);
-  } catch (err) {
-    console.error('Error searching movies:', err);
-    return [];
-  }
+// Search
+export async function searchMovies(query, page = 1) {
+  const res = await fetch(
+    `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=${page}`
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return processMovies(data.results || []);
 }
 
-// NEW: Discover by genre (paged, returns items + totalPages)
+// Discover by genre — returns { movies, totalPages }
 export async function fetchMoviesByGenre(genreIds, page = 1) {
   const ids = Array.isArray(genreIds) ? genreIds.join(',') : String(genreIds);
-  try {
-    const res = await fetch(
-      `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${encodeURIComponent(
-        ids
-      )}&sort_by=popularity.desc&page=${page}`
-    );
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    return {
-      items: processMovies(data.results || []),
-      totalPages: data.total_pages || 1,
-    };
-  } catch (err) {
-    console.error('Error fetching movies by genre:', err);
-    return { items: [], totalPages: 1 };
-  }
+  const res = await fetch(
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${encodeURIComponent(
+      ids
+    )}&sort_by=popularity.desc&page=${page}`
+  );
+  if (!res.ok) return { movies: [], totalPages: 1 };
+  const data = await res.json();
+  return { movies: processMovies(data.results).slice(0, 8), totalPages: data.total_pages || 1 };
 }
-

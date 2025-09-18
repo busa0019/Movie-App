@@ -55,3 +55,104 @@ body {
 .btn-outline:hover { background: #6366f1; color: #fff; }
 
 .more-btn { display: block; margin: 30px auto; width: 200px; }
+
+/* ---- Skeletons ---- */
+.skeleton {
+  background: linear-gradient(90deg, #334155 25%, #475569 37%, #334155 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+.skeleton-card {
+  height: 330px;
+}
+
+/* ===== Auth page styling ===== */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 440px;
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.auth-form-container h2 {
+  margin-bottom: 18px;
+  font-size: 1.6rem;
+}
+
+.auth-form .form-group {
+  margin-bottom: 16px;
+}
+
+.auth-form label {
+  display: block;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.auth-form input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+}
+
+.auth-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.error-message {
+  margin: 8px 0 0;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fecaca;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.auth-switch {
+  margin-top: 14px;
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+.auth-switch .switch-btn {
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  color: #8b9cff;
+  cursor: pointer;
+  font-weight: 600;
+}
+.auth-switch .switch-btn:hover {
+  text-decoration: underline;
+}

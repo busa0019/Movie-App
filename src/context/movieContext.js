@@ -6,7 +6,8 @@ import {
   fetchNowPlayingMovies,
   fetchMovieDetails,
   fetchGenres,
-  searchMovies // Added search function
+  searchMovies,
+  fetchMoviesByGenre // Added this import
 } from '../services/api';
 
 const MovieContext = createContext();
@@ -21,8 +22,9 @@ export function MovieProvider({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [genres, setGenres] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState('All');
-  const [searchResults, setSearchResults] = useState([]); // Added search results
+  const [selectedGenre, setSelectedGenre] = useState({ id: '', name: 'All' }); // Changed to object
+  const [searchResults, setSearchResults] = useState([]);
+  const [genreMovies, setGenreMovies] = useState([]); // Added for genre-specific movies
   
   // Load initial data
   useEffect(() => {
@@ -42,7 +44,8 @@ export function MovieProvider({ children }) {
         setPopular(popularData);
         setTopRated(topRatedData);
         setNowPlaying(nowPlayingData);
-        setGenres(['All', ...genresData.map(g => g.name)]);
+        // Store genres as objects with id and name
+        setGenres([{ id: '', name: 'All' }, ...genresData]);
       } catch (error) {
         console.error('Failed to load data:', error);
       } finally {
@@ -53,7 +56,29 @@ export function MovieProvider({ children }) {
     loadData();
   }, []);
 
-  // NEW: Search movies when query changes
+  // Fetch genre-specific movies when selectedGenre changes
+  useEffect(() => {
+    const fetchGenreMovies = async () => {
+      if (selectedGenre.id) {
+        setIsLoading(true);
+        try {
+          const movies = await fetchMoviesByGenre(selectedGenre.id);
+          setGenreMovies(movies);
+        } catch (error) {
+          console.error('Failed to fetch genre movies:', error);
+          setGenreMovies([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setGenreMovies([]);
+      }
+    };
+
+    fetchGenreMovies();
+  }, [selectedGenre]);
+
+  // Search movies when query changes
   useEffect(() => {
     if (searchQuery) {
       const search = async () => {
@@ -120,7 +145,8 @@ export function MovieProvider({ children }) {
     selectedGenre,
     setSelectedGenre,
     isLoading,
-    searchResults // Added search results
+    searchResults,
+    genreMovies // Added genre movies
   };
 
   return (

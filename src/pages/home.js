@@ -1,5 +1,6 @@
 import { useMovieContext } from '../context/MovieContext';
 import MovieSection from '../components/MovieSection';
+import MovieCard from '../components/MovieCard'; // Import MovieCard
 
 export default function Home() {
   const { 
@@ -8,7 +9,9 @@ export default function Home() {
     topRated,
     nowPlaying,
     isLoading,
-    searchQuery
+    searchQuery,
+    selectedGenre,
+    genreMovies
   } = useMovieContext();
 
   if (isLoading) {
@@ -16,6 +19,22 @@ export default function Home() {
       <div className="loading">
         <div className="spinner"></div>
         <p>Loading movies...</p>
+      </div>
+    );
+  }
+
+  // Show genre-specific movies if a genre is selected
+  if (selectedGenre.id) {
+    return (
+      <div className="home-page">
+        <div className="container">
+          <h2 className="section-title">{selectedGenre.name} Movies</h2>
+          <div className="movie-grid">
+            {genreMovies.map(movie => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

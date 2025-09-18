@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useMovieContext } from '../context/MovieContext';
 import SearchBar from './SearchBar';
@@ -7,6 +7,12 @@ import GenreFilter from './GenreFilter';
 export default function Header() {
   const { user, login, logout } = useMovieContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Function to check active route
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <header className="header">
@@ -24,13 +30,11 @@ export default function Header() {
             <GenreFilter />
           </div>
           
-          {/* Navigation */}
+          {/* Simplified Navigation */}
           <nav className={`nav ${isMenuOpen ? 'open' : ''}`}>
             <ul>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/">Movies</Link></li>
-              <li><Link to="/">Genres</Link></li>
-              <li><Link to="/">Favorites</Link></li>
+              <li><Link to="/" className={isActive('/') ? 'active' : ''}>Home</Link></li>
+              <li><Link to="/favorites" className={isActive('/favorites') ? 'active' : ''}>Favorites</Link></li>
             </ul>
           </nav>
           
@@ -54,8 +58,9 @@ export default function Header() {
           <button 
             className="menu-toggle" 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            ☰
+            {isMenuOpen ? '✕' : '☰'}
           </button>
         </div>
       </div>

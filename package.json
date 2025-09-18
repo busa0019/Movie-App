@@ -2,7 +2,7 @@
   "name": "movie-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "https://busa0019.github.io/Movie-App",
   "dependencies": {
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",

@@ -4,7 +4,7 @@ Welcome to **CineVerse**, a clean, responsive React app for exploring movies via
 
 ## ✨ Features
 
-- **Homepage sections**: Trending, Popular, Top Rated, Now Playing
+- **Homepage sections**: Trending, Popular, Top Rated, In Theaters
   - Each section supports Load More pagination.
 - **Genre browsing**: Pick a genre (e.g., Action, Comedy) and load more results.
 - **Search**: Find movies by title.
